@@ -20,6 +20,7 @@ dai::Pipeline createPipeline(){
     
     colorCam->setResolution(dai::ColorCameraProperties::SensorResolution::THE_1080_P);
     colorCam->setInterleaved(false);
+    colorCam->setImageOrientation(dai::CameraImageOrientation::NORMAL);
 
     // Link plugins CAM -> XLINK
     colorCam->video.link(xlinkOut->input);
@@ -42,7 +43,7 @@ int main(int argc, char** argv){
 
     dai::Pipeline pipeline = createPipeline();
     dai::Device device(pipeline);
-    std::shared_ptr<dai::DataOutputQueue> imgQueue = device.getOutputQueue("video", 30, false);
+    std::shared_ptr<dai::DataOutputQueue> imgQueue = device.getOutputQueue("video", 15, false);
     
     std::string color_uri = cameraParamUri + "/" + "color.yaml";
 
@@ -55,7 +56,7 @@ int main(int argc, char** argv){
                                                                                                   // and image type is also same we can reuse it
                                                                                   std::placeholders::_1, 
                                                                                   std::placeholders::_2) , 
-                                                                                  30,
+                                                                                  15,
                                                                                   color_uri,
                                                                                   "color");
 
