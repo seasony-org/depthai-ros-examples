@@ -43,20 +43,20 @@ int main(int argc, char** argv){
 
     dai::Pipeline pipeline = createPipeline();
     dai::Device device(pipeline);
-    std::shared_ptr<dai::DataOutputQueue> imgQueue = device.getOutputQueue("video", 15, false);
+    std::shared_ptr<dai::DataOutputQueue> imgQueue = device.getOutputQueue("video", 5, false);
     
     std::string color_uri = cameraParamUri + "/" + "color.yaml";
 
     dai::rosBridge::ImageConverter rgbConverter(tfPrefix + "_rgb_camera_optical_frame", false);
     dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> rgbPublish(imgQueue,
                                                                                   node, 
-                                                                                  std::string("color/image"),
+                                                                                  std::string(tfPrefix+"/color/image_raw"),
                                                                                   std::bind(&dai::rosBridge::ImageConverter::toRosMsg, 
                                                                                   &rgbConverter, // since the converter has the same frame name
                                                                                                   // and image type is also same we can reuse it
                                                                                   std::placeholders::_1, 
                                                                                   std::placeholders::_2) , 
-                                                                                  15,
+                                                                                  5,
                                                                                   color_uri,
                                                                                   "color");
 

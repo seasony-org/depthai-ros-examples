@@ -4,18 +4,41 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription, launch_description_sources
 from launch.actions import IncludeLaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.actions import OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 import launch_ros.actions
 import launch_ros.descriptions
 
+def mobilenet_node(context, *args, **kwargs):
+    
+    return [launch_ros.actions.Node(
+            package='depthai_examples', executable='rgb_node',
+            output='screen',
+            namespace=LaunchConfiguration('robot_name'),
+            parameters=[{'tf_prefix': LaunchConfiguration('tf_prefix')},
+                        {'camera_param_uri': LaunchConfiguration('camera_param_uri')}],
+            remappings=[('/'+LaunchConfiguration('robot_name').perform(context)+'/color/camera_info', 
+            '/'+LaunchConfiguration('robot_name').perform(context)+'/'+LaunchConfiguration('tf_prefix').perform(context)+'/color/camera_info')])
+    ]
 
 def generate_launch_description():
+    env_robot_name = os.environ.get('ROBOT_NAME')
+    if not env_robot_name:
+        print("No env variable ROBOT_NAME, using default lewis as name")
+        env_robot_name = "lewis"
+    use_sim_time = LaunchConfiguration('use_sim_time')
+    robot_name = LaunchConfiguration('robot_name')
+    
+    declare_robot_name_cmd = DeclareLaunchArgument(
+        'robot_name',
+        default_value=env_robot_name,
+        description='Robot name')
 
     urdf_launch_dir = os.path.join(get_package_share_directory('depthai_bridge'), 'launch')
     
 
     camera_model     = LaunchConfiguration('camera_model',  default = 'OAK-D')
-    tf_prefix        = LaunchConfiguration('tf_prefix',   default = 'oak')
+    tf_prefix        = LaunchConfiguration('tf_prefix',     default = 'camera_right_side')
     base_frame       = LaunchConfiguration('base_frame',    default = 'oak-d_frame')
     parent_frame     = LaunchConfiguration('parent_frame',  default = 'oak-d-base-frame')
     cam_pos_x        = LaunchConfiguration('cam_pos_x',     default = '0.0')
@@ -96,13 +119,10 @@ def generate_launch_description():
                                               'cam_pitch'   : cam_pitch,
                                               'cam_yaw'     : cam_yaw}.items())
 
-    mobilenet_node = launch_ros.actions.Node(
-            package='depthai_examples', executable='rgb_node',
-            output='screen',
-            parameters=[{'tf_prefix': tf_prefix},
-                        {'camera_param_uri': camera_param_uri}])
 
     ld = LaunchDescription()
+
+    ld.add_action(declare_robot_name_cmd)
     ld.add_action(declare_tf_prefix_cmd)
     ld.add_action(declare_camera_model_cmd)
     
@@ -118,8 +138,8 @@ def generate_launch_description():
 
     ld.add_action(declare_camera_param_uri_cmd)
 
-    ld.add_action(mobilenet_node)
     ld.add_action(urdf_launch)
+    ld.add_action(OpaqueFunction(function=mobilenet_node))
 
     return ld
 
