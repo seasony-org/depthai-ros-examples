@@ -16,7 +16,9 @@ def mobilenet_node_funct(context, *args, **kwargs):
             output='screen',
             namespace=LaunchConfiguration('robot_name'),
             parameters=[{'tf_prefix': LaunchConfiguration('tf_prefix')},
-                        {'camera_param_uri': LaunchConfiguration('camera_param_uri')}])
+                        {'camera_param_uri': LaunchConfiguration('camera_param_uri')}],
+            remappings=[('/tf', 'tf'),
+                  ('/tf_static', 'tf_static')])
     ]
 
 def generate_launch_description():
@@ -32,19 +34,19 @@ def generate_launch_description():
         default_value=env_robot_name,
         description='Robot name')
 
-    urdf_launch_dir = os.path.join(get_package_share_directory('depthai_bridge'), 'launch')
+    urdf_launch_dir = os.path.join(get_package_share_directory('depthai_examples'), 'launch')
     
 
     camera_model     = LaunchConfiguration('camera_model',  default = 'OAK-D')
     tf_prefix        = LaunchConfiguration('tf_prefix',     default = 'camera_right_side')
-    base_frame       = LaunchConfiguration('base_frame',    default = 'oak-d_frame')
-    parent_frame     = LaunchConfiguration('parent_frame',  default = 'oak-d-base-frame')
-    cam_pos_x        = LaunchConfiguration('cam_pos_x',     default = '0.0')
-    cam_pos_y        = LaunchConfiguration('cam_pos_y',     default = '0.0')
-    cam_pos_z        = LaunchConfiguration('cam_pos_z',     default = '0.0')
+    base_frame       = LaunchConfiguration('base_frame',    default = 'camera_right_side_link')
+    parent_frame     = LaunchConfiguration('parent_frame',  default = 'base_link')
+    cam_pos_x        = LaunchConfiguration('cam_pos_x',     default = '-0.3325')
+    cam_pos_y        = LaunchConfiguration('cam_pos_y',     default = '-0.2943')
+    cam_pos_z        = LaunchConfiguration('cam_pos_z',     default = '-0.08')
     cam_roll         = LaunchConfiguration('cam_roll',      default = '0.0')
     cam_pitch        = LaunchConfiguration('cam_pitch',     default = '0.0')
-    cam_yaw          = LaunchConfiguration('cam_yaw',       default = '0.0')
+    cam_yaw          = LaunchConfiguration('cam_yaw',       default = '-1.5708')
 
     camera_param_uri = LaunchConfiguration('camera_param_uri', default = 'package://depthai_examples/params/camera')
 
@@ -105,7 +107,7 @@ def generate_launch_description():
     
     urdf_launch = IncludeLaunchDescription(
                             launch_description_sources.PythonLaunchDescriptionSource(
-                                    os.path.join(urdf_launch_dir, 'urdf_launch.py')),
+                                    os.path.join(urdf_launch_dir, 'urdf.launch.py')),
                             launch_arguments={'tf_prefix' : tf_prefix,
                                               'camera_model': camera_model,
                                               'base_frame'  : base_frame,
