@@ -9,16 +9,14 @@ from launch.substitutions import LaunchConfiguration
 import launch_ros.actions
 import launch_ros.descriptions
 
-def mobilenet_node(context, *args, **kwargs):
+def mobilenet_node_funct(context, *args, **kwargs):
     
     return [launch_ros.actions.Node(
             package='depthai_examples', executable='rgb_node',
             output='screen',
             namespace=LaunchConfiguration('robot_name'),
             parameters=[{'tf_prefix': LaunchConfiguration('tf_prefix')},
-                        {'camera_param_uri': LaunchConfiguration('camera_param_uri')}],
-            remappings=[('/'+LaunchConfiguration('robot_name').perform(context)+'/color/camera_info', 
-            '/'+LaunchConfiguration('robot_name').perform(context)+'/'+LaunchConfiguration('tf_prefix').perform(context)+'/color/camera_info')])
+                        {'camera_param_uri': LaunchConfiguration('camera_param_uri')}])
     ]
 
 def generate_launch_description():
@@ -119,7 +117,6 @@ def generate_launch_description():
                                               'cam_pitch'   : cam_pitch,
                                               'cam_yaw'     : cam_yaw}.items())
 
-
     ld = LaunchDescription()
 
     ld.add_action(declare_robot_name_cmd)
@@ -139,7 +136,8 @@ def generate_launch_description():
     ld.add_action(declare_camera_param_uri_cmd)
 
     ld.add_action(urdf_launch)
-    ld.add_action(OpaqueFunction(function=mobilenet_node))
+    ld.add_action(OpaqueFunction(function=mobilenet_node_funct))
+    
 
     return ld
 
