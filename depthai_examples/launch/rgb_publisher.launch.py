@@ -9,14 +9,15 @@ from launch.substitutions import LaunchConfiguration
 import launch_ros.actions
 import launch_ros.descriptions
 
-def mobilenet_node_funct(context, *args, **kwargs):
+def rgb_publisher_node(context, *args, **kwargs):
     
     return [launch_ros.actions.Node(
             package='depthai_examples', executable='rgb_node',
             output='screen',
             namespace=LaunchConfiguration('robot_name'),
             parameters=[{'tf_prefix': LaunchConfiguration('tf_prefix')},
-                        {'camera_param_uri': LaunchConfiguration('camera_param_uri')}],
+                        {'camera_param_uri': LaunchConfiguration('camera_param_uri')},
+                        {'camera_ip': LaunchConfiguration('camera_ip')}],
             remappings=[('/tf', 'tf'),
                   ('/tf_static', 'tf_static')])
     ]
@@ -38,6 +39,7 @@ def generate_launch_description():
     
 
     camera_model     = LaunchConfiguration('camera_model',  default = 'OAK-D')
+    camera_ip        = LaunchConfiguration('camera_ip',  default = '192.168.72.223')
     tf_prefix        = LaunchConfiguration('tf_prefix',     default = 'camera_right_side')
     base_frame       = LaunchConfiguration('base_frame',    default = 'camera_right_side_link')
     parent_frame     = LaunchConfiguration('parent_frame',  default = 'base_link')
@@ -54,6 +56,11 @@ def generate_launch_description():
         'camera_model',
         default_value=camera_model,
         description='The model of the camera. Using a wrong camera model can disable camera features. Valid models: `OAK-D, OAK-D-LITE`.')
+
+    declare_camera_ip_cmd = DeclareLaunchArgument(
+        'camera_ip',
+        default_value=camera_ip,
+        description='The ip of the camera to be used.')
 
     declare_tf_prefix_cmd = DeclareLaunchArgument(
         'tf_prefix',
@@ -124,6 +131,7 @@ def generate_launch_description():
     ld.add_action(declare_robot_name_cmd)
     ld.add_action(declare_tf_prefix_cmd)
     ld.add_action(declare_camera_model_cmd)
+    ld.add_action(declare_camera_ip_cmd)
     
     ld.add_action(declare_base_frame_cmd)
     ld.add_action(declare_parent_frame_cmd)
@@ -138,7 +146,7 @@ def generate_launch_description():
     ld.add_action(declare_camera_param_uri_cmd)
 
     ld.add_action(urdf_launch)
-    ld.add_action(OpaqueFunction(function=mobilenet_node_funct))
+    ld.add_action(OpaqueFunction(function=rgb_publisher_node))
     
 
     return ld

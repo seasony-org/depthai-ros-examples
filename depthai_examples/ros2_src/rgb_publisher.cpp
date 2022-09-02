@@ -37,15 +37,18 @@ int main(int argc, char** argv){
 
     std::string tfPrefix;
     std::string cameraParamUri = "package://depthai_examples/params/camera";
+    std::string camIP;
     
     node->declare_parameter("tf_prefix", "oak");
     node->declare_parameter("camera_param_uri", cameraParamUri);
+    node->declare_parameter("camera_ip", "192.168.72.222");
     
     node->get_parameter("tf_prefix", tfPrefix);
     node->get_parameter("camera_param_uri", cameraParamUri);
+    node->get_parameter("camera_ip", camIP);
 
     dai::Pipeline pipeline = createPipeline();
-    dai::Device device(pipeline);
+    dai::Device device(pipeline, dai::DeviceInfo(camIP));
     std::shared_ptr<dai::DataOutputQueue> imgQueue = device.getOutputQueue("video", 5, false);
     
     std::string color_uri = cameraParamUri + "/" + "color.yaml";
