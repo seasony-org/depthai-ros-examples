@@ -35,7 +35,7 @@ def generate_launch_description():
         default_value=env_robot_name,
         description='Robot name')
 
-    urdf_launch_dir = os.path.join(get_package_share_directory('depthai_examples'), 'launch')
+    urdf_launch_dir = os.path.join(get_package_share_directory('depthai_bridge'), 'launch')
     
 
     camera_model     = LaunchConfiguration('camera_model',  default = 'OAK-D')
@@ -114,7 +114,7 @@ def generate_launch_description():
     
     urdf_launch = IncludeLaunchDescription(
                             launch_description_sources.PythonLaunchDescriptionSource(
-                                    os.path.join(urdf_launch_dir, 'urdf.launch.py')),
+                                    os.path.join(urdf_launch_dir, 'urdf_launch.py')),
                             launch_arguments={'tf_prefix' : tf_prefix,
                                               'camera_model': camera_model,
                                               'base_frame'  : base_frame,
