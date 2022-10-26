@@ -16,6 +16,11 @@ def generate_launch_description():
     bringup_dir = get_package_share_directory('depthai_bridge')
     xacro_path = os.path.join(bringup_dir, 'urdf', 'depthai_descr.urdf.xacro')
 
+    env_robot_name = os.environ.get('ROBOT_NAME')
+    if not env_robot_name:
+        print("No env variable ROBOT_NAME, using default lewis as name")
+        env_robot_name = "lewis"
+
     camera_model = LaunchConfiguration('camera_model',  default = 'OAK-D')
     tf_prefix    = LaunchConfiguration('tf_prefix',     default = 'oak')
     base_frame   = LaunchConfiguration('base_frame',    default = 'oak-d_frame')
@@ -82,7 +87,7 @@ def generate_launch_description():
             package='robot_state_publisher',
             executable='robot_state_publisher',
             name='oak_state_publisher',
-            namespace='lewis',
+            namespace=env_robot_name,
             parameters=[{'robot_description': Command(
                 [
                     'xacro', ' ', xacro_path, ' ',
